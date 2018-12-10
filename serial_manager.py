@@ -1,25 +1,35 @@
-import serial
 import glob
 
-def list_ports():
-    """ Gets Serial Port Names (**nix only)
-        :returns:
-            A list of serial ports currently available
-    """
-    ports = glob.glob('/dev/tty[A-Za-Z]*')
-    ports_out = []
-    for i in ports:
-        try:
-            port = serial.Serial(i)
-            port.close()
-            ports_out.append(i)
-        except (OSError, serial.SerialException):
-            pass
-    return ports_out
+
+class OPC:
+
+    def __init__(self, portname, mode):
+
+        if mode == 'COMP':
+            baud = 9600
+            parityB = 0
+            dataB = 8
+            stopB = 1
+        elif mode == 'LOG':
+            baud = 9600
+            parityB = 0
+            dataB = 8
+            stopB = 1
+        elif mode == 'ARD':
+            baud = 9600
+            parityB = 0
+            dataB = 8
+            stopB = 1
+        else:
+            NameError
+
+    def list_ports(self):
+        """ Gets Serial Port Names (**nix only)
+            :returns:
+                A list of serial ports currently available
+        """
+        ports = glob.glob('/dev/tty[a-zA-Z]*')
+        return ports
 
 
-
-
-
-
-
+print(OPC.list_ports())
