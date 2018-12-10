@@ -13,7 +13,7 @@ def list_ports():
             port = serial.Serial(i)
             port.close()
             ports_out.append(i)
-        except (OSError, serial.SerialException)
+        except (OSError, serial.SerialException):
             pass
     return ports_out
 
