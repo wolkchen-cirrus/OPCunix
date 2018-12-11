@@ -20,7 +20,7 @@
 *.tar
 *.zip
 
-# Logs and databases #
+# Logs and data_bases #
 ######################
 *.log
 *.sql
