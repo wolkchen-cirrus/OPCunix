@@ -6,7 +6,7 @@ import time
 class OPC:
 
     def __init__(self, port_name, mod):
-        """ Starts Communication With OPC on a Serial Port
+        """ Creates an instance of the 'OPC' class
             :parameter:
                 port_name - Name of port i.e. /dev/tty**
                 mode - Which mode is being used (PC, Logger, Arduino, etc.)
@@ -16,6 +16,10 @@ class OPC:
         self.opc_port = serial.Serial()
 
     def init_port(self):
+        """Starts communications with the OPC
+            :raises:
+                A name error if an invalid mode is input
+        """
         if self.mode == 'COMP':
             baud = 9600
             parity_b = 0
@@ -40,11 +44,24 @@ class OPC:
         self.opc_port.open()
 
     def close_port(self):
+        self.opc_port.flush()
         self.opc_port.close()
 
     def read_hist(self):
+        """ Reads 1 Line of Histogram Data From UCASS
+            :returns:
+                String of raw bytes to be processed into int16
+        """
+        self.open_port()
         if self.mode == 'COMP':
-            self.opc_port.read_until()
+            byte_string = []
+            self.command_byte(0x30)
+            for i in range(43):
+                time.sleep(0.00001)
+                byte_in = self.opc_port.write(0x30)
+                byte_string.append(byte_in)
+            self.close_port()
+            return byte_string
         elif self.mode == 'LOG':
             self.opc_port.read_until()
         elif self.mode == 'ARD':
@@ -52,6 +69,8 @@ class OPC:
 
     def command_byte(self, comm):
         """ Sends a Command Byte to the OPC and Checks the Response
+            :parameter:
+                comm - a byte corresponding to a UCASS command
             :raises:
                 A RuntimeError if the connection takes 60 seconds
         """
@@ -69,6 +88,13 @@ class OPC:
                 if timeout > 60:
                     raise RuntimeError("Connection Timed Out, Check Hardware")
         time.sleep(0.01)
+
+
+def byte_to_int(bytes_in):
+    int_out = 0
+    for i in bytes_in:
+        int_out = int_out*256+int(i)
+    return int_out
 
 
 def list_ports():
@@ -89,4 +115,5 @@ def list_ports():
     return port_list
 
 
-print(list_ports())
+
+
