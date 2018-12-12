@@ -1,5 +1,6 @@
 import glob
 import serial
+import time
 
 
 class OPC:
@@ -9,8 +10,6 @@ class OPC:
             :parameter:
                 port_name - Name of port i.e. /dev/tty**
                 mode - Which mode is being used (PC, Logger, Arduino, etc.)
-            :returns:
-                A serial port object from pyserial library
         """
         self.mode = mod
         self.port = port_name
@@ -50,6 +49,26 @@ class OPC:
             self.opc_port.read_until()
         elif self.mode == 'ARD':
             self.opc_port.read_until()
+
+    def command_byte(self, comm):
+        """ Sends a Command Byte to the OPC and Checks the Response
+            :raises:
+                A RuntimeError if the connection takes 60 seconds
+        """
+        ready = 0xF3
+        valid = False
+        timeout = 0
+        while not valid:
+            response = self.opc_port.write(comm)
+            if response != ready:
+                print ("UCASS Not Communicating, Wait 2s")
+                print ("Byte Received = ", response)
+                print ("Byte Expected = ", ready)
+                time.sleep(2)
+                timeout = timeout + 1
+                if timeout > 60:
+                    raise RuntimeError("Connection Timed Out, Check Hardware")
+        time.sleep(0.01)
 
 
 def list_ports():
