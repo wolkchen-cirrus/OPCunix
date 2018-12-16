@@ -16,7 +16,7 @@ class OPC:
         self.opc_port = serial.Serial()
 
     def init_port(self):
-        """Starts communications with the OPC
+        """ Starts communications with the OPC
             :raises:
                 A name error if an invalid mode is input
         """
