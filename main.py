@@ -1,5 +1,6 @@
-import serial_manager
+import command_handler
 
 
-ports = serial_manager.list_ports()
-print ports
+command_handler.make_title()
+comm = input("[OPC-unix] ")
+command_handler.process(comm)
