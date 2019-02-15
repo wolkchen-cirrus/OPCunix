@@ -1,3 +1,7 @@
+import command_handler
+import serial_manager
+
+
 __version__ = '0.0.1'
 __title__ = 'OPCunix'
 __description__ = 'Communication with an OPC via SPI through an USB-ISS interface'

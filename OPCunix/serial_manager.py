@@ -5,7 +5,7 @@ import struct
 import serial
 
 
-class OPC:
+class OPC(object):
 
     def __init__(self, port_name):
         """ Creates an instance of the 'OPC' class
@@ -73,6 +73,9 @@ class OPC:
     def command_byte(self, command):
         self.opc_port.xfer(command)
         sleep(0.01)
+
+    def close(self):
+        self.opc_port.close()
 
 
 def byte_to_int16(lsb, msb):
