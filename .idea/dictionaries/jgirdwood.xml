@@ -2,6 +2,9 @@
   <dictionary name="jgirdwood">
     <words>
       <w>arduino</w>
+      <w>cunix</w>
+      <w>ltof</w>
+      <w>mtof</w>
       <w>pyserial</w>
       <w>ucass</w>
     </words>
