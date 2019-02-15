@@ -7,13 +7,12 @@ import serial
 
 class OPC:
 
-    def __init__(self, port_name, mod):
+    def __init__(self, port_name):
         """ Creates an instance of the 'OPC' class
             :parameter:
                 port_name - Name of port i.e. /dev/tty**
                 mode - Which mode is being used (PC, Logger, Arduino, etc.)
         """
-        self.mode = mod
         self.port = port_name
         self.opc_port = spi.SPI(port_name, mode=1, max_speed_hz=500000)
 
