@@ -6,6 +6,10 @@ import subprocess
 import signal
 import serial
 import glob
+import serial_manager
+
+
+used_ports = []
 
 
 def process(comm):
@@ -19,7 +23,7 @@ def process(comm):
     if comm_arr[0] == "list":
         if comm_arr[1] == "ports":
             list_ports()
-        if comm_arr[1] == "ucass":
+        elif comm_arr[1] == "ucass":
             get_ucass_list()
         return 1
 
@@ -34,8 +38,10 @@ def process(comm):
     elif comm_arr[0] == "ucass":
         if comm_arr[1] == "init":
             InitUCASS(comm_arr)
-        if comm_arr[1] == "delete":
+        elif comm_arr[1] == "delete":
             delete_ucass(comm_arr)
+        elif comm_arr[1] == "config":
+            read_config(comm_arr)
         return 1
 
     else:
@@ -72,8 +78,11 @@ class InitUCASS(KeepRefs):
         self.settings.close()
         self.process = subprocess.Popen(['konsole', '-e', '$SHELL', '-c', 'python ucass_subprocess.py'])
         self.name = process_opts(comm_arr, '-n')
+        self.port = process_opts(comm_arr, '-p')
+        used_ports.append(self.port)
 
     def __delete__(self, instance):
+        used_ports.remove(self.port)
         os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
         print('Deleted UCASS With Designation: %d' % self.name)
 
@@ -155,3 +164,35 @@ def list_ports():
             pass
 
     return port_list
+
+
+def read_config(comm_arr):
+    """
+    A function to read the config vars from a ucass on a port
+    :param comm_arr: The command array entered, only uses -p
+    """
+    port = process_opts(comm_arr, '-p')
+    used = 1
+    try:
+        used_ports.index(port)
+    except ValueError:
+        used = 0
+        pass
+    if used == 1:
+        print("Serial port in use with name: %d" % port)
+    else:
+        ucass = serial_manager.OPC(port)
+        ucass.read_info_string()
+        ucass.read_config_vars()
+        print(ucass.info_string)
+        print('\n')
+        print("bb0,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,bb9,bb10,bb11,bb12,bb13,bb14,bb15,GSC,ID\n")
+        bb_str = "\t".join(str(i) for i in ucass.bbs)
+        bb_str = bb_str.replace('[', '')
+        bb_str = bb_str.replace(']', '')
+        print(bb_str)
+        print('\t')
+        print(str(ucass.gsc))
+        print('\t')
+        print(str(ucass.id))
+        print('\n')
