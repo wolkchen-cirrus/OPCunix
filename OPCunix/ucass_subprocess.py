@@ -69,4 +69,3 @@ while True:
     else:
 
         print("Exceeded expected resolution, loop time is: %d" % dt)
-
