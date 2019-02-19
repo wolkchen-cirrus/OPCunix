@@ -1,10 +1,11 @@
 import os
-import serial_manager
 from collections import defaultdict
 import weakref
 import datetime
 import subprocess
 import signal
+import serial
+import glob
 
 
 def process(comm):
@@ -17,7 +18,7 @@ def process(comm):
 
     if comm_arr[0] == "list":
         if comm_arr[1] == "ports":
-            port_list()
+            list_ports()
         if comm_arr[1] == "ucass":
             get_ucass_list()
         return 1
@@ -47,11 +48,6 @@ def make_title():
     print("\t**************************************************")
     print("\t*****    UCASS Interface Software (Linux)    *****")
     print("\t**************************************************")
-
-
-def port_list():
-    ports = serial_manager.list_ports()
-    print ports
 
 
 class KeepRefs(object):
@@ -141,3 +137,21 @@ def make_log(comm_arr):
         if os.path.exists(path_name) is False:
             break
     return path_name
+
+
+def list_ports():
+    """ Gets Serial Port Names (**nix only)
+        :returns:
+            A list of serial ports currently available
+    """
+    ports = glob.glob('/dev/tty[a-zA-Z]*')
+    port_list = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            port_list.append(port)
+        except (OSError, serial.SerialException):
+            pass
+
+    return port_list

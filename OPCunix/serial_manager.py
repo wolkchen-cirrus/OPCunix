@@ -1,8 +1,6 @@
-import glob
 from time import sleep
 from usbiss import spi
 import struct
-import serial
 
 
 class OPC(object):
@@ -85,21 +83,3 @@ def byte_to_int16(lsb, msb):
 def byte_to_float(b1, b2, b3, b4):
     arr = bytearray([b1, b2, b3, b4])
     return struct.unpack('<f', arr)
-
-
-def list_ports():
-    """ Gets Serial Port Names (**nix only)
-        :returns:
-            A list of serial ports currently available
-    """
-    ports = glob.glob('/dev/tty[a-zA-Z]*')
-    port_list = []
-    for port in ports:
-        try:
-            s = serial.Serial(port)
-            s.close()
-            port_list.append(port)
-        except (OSError, serial.SerialException):
-            pass
-
-    return port_list
