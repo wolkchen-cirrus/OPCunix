@@ -141,4 +141,3 @@ def make_log(comm_arr):
         if os.path.exists(path_name) is False:
             break
     return path_name
-
