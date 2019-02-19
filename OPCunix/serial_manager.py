@@ -103,7 +103,3 @@ def list_ports():
             pass
 
     return port_list
-
-
-
-
