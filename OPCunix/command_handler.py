@@ -1,6 +1,4 @@
 import os
-from collections import defaultdict
-import weakref
 import subprocess
 import signal
 import serial
@@ -9,7 +7,8 @@ import serial_manager
 import sys
 
 
-used_ports = []
+ucass_list = {}
+ucass_store = {}
 
 
 def process(comm):
@@ -40,7 +39,7 @@ def process(comm):
 
     elif comm_arr[0] == "ucass":
         if comm_arr[1] == "init":
-            InitUCASS(comm_arr)
+            init_ucass(comm_arr)
         elif comm_arr[1] == "delete":
             delete_ucass(comm_arr)
         elif comm_arr[1] == "config":
@@ -59,47 +58,52 @@ def make_title():
     print("\t**************************************************")
 
 
-class KeepRefs(object):
-    __refs__ = defaultdict(list)
+class NameUCASS(object):
 
-    def __init__(self):
-        self.__refs__[self.__class__].append(weakref.ref(self))
+    def __init__(self, name):
+        self.name = name
 
-    @classmethod
-    def get_instances(cls):
-        for inst_ref in cls.__refs__[cls]:
-            inst = inst_ref()
-            if inst is not None:
-                yield inst
+    def __get__(self, instance, owner):
+        return self.name
+
+    def __set__(self, instance, value):
+        self.name = value
+
+    def __delete__(self, instance):
+        del self.name
 
 
-class InitUCASS(KeepRefs):
+class HistSubprocess(object):
+
     def __init__(self, comm_arr):
-        super(InitUCASS, self).__init__()
+        self.name = NameUCASS(process_opts(comm_arr, '-n'))
+        self.port = process_opts(comm_arr, '-p')
+        ucass_list[self.name] = self.port
+
         module_path = os.path.dirname(os.path.realpath(__file__))
         settings_path = module_path + "/ucass_settings.txt"
         process_path = module_path + "/ucass_subprocess.py"
         process_path = 'python' + ' ' + process_path
+
         self.settings = open(settings_path, "w")
         self.settings.write(' '.join(comm_arr))
         self.settings.close()
-        self.process = subprocess.Popen(['konsole', '-e', '$SHELL', '-c', process_path])
-        self.name = process_opts(comm_arr, '-n')
-        self.port = process_opts(comm_arr, '-p')
-        used_ports.append(self.port)
 
-    def __delete__(self, instance):
-        used_ports.remove(self.port)
-        os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
-        print('Deleted UCASS With Designation: %d' % self.name)
+        self.process = subprocess.Popen(['konsole', '-e', '$SHELL', '-c', process_path])
+
+
+def init_ucass(comm_arr):
+    name = process_opts(comm_arr, '-n')
+    ucass_store[name] = HistSubprocess(comm_arr)
 
 
 def get_ucass_list():
     names = []
     ports = []
-    for i in InitUCASS.get_instances():
-        names.append(i.name)
-        ports.append(i.port)
+    for i in ucass_list.keys():
+        names.append(i)
+    for i in ucass_list.values():
+        ports.append(i)
     print("\tDesignation:\tOn Port:")
     for i in range(len(names)):
         string = "\t".join([names[i], ports[i]])
@@ -109,9 +113,12 @@ def get_ucass_list():
 
 def delete_ucass(comm_arr):
     name = process_opts(comm_arr, '-n')
-    for i in InitUCASS.get_instances():
-        if i.name == name:
-            i.__delete__()
+    ucass = ucass_store.get(name)
+    os.killpg(os.getpgid(ucass.process.pid), signal.SIGTERM)
+    print('Deleted UCASS With Designation: %d' % ucass.name)
+    del ucass_list[name]
+    del ucass_store[name]
+    del ucass
 
 
 def process_opts(comm_arr, look_for):
@@ -146,13 +153,8 @@ def read_config(comm_arr):
     :param comm_arr: The command array entered, only uses -p
     """
     port = process_opts(comm_arr, '-p')
-    used = 1
-    try:
-        used_ports.index(port)
-    except ValueError:
-        used = 0
-        pass
-    if used == 1:
+    used = port in ucass_list.values()
+    if used:
         print("Serial port in use with name: %d" % port)
     else:
         ucass = serial_manager.OPC(port)
