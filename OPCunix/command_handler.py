@@ -40,9 +40,9 @@ def process(comm):
     elif comm_arr[0] == "ucass":
         if comm_arr[1] == "init":
             init_ucass(comm_arr)
-        elif comm_arr[1] == "delete":
+        elif comm_arr[1] == "del":
             delete_ucass(comm_arr)
-        elif comm_arr[1] == "config":
+        elif comm_arr[1] == "conf":
             read_config(comm_arr)
         return 1
 
@@ -58,25 +58,10 @@ def make_title():
     print("\t**************************************************")
 
 
-class NameUCASS(object):
-
-    def __init__(self, name):
-        self.name = name
-
-    def __get__(self, instance, owner):
-        return self.name
-
-    def __set__(self, instance, value):
-        self.name = value
-
-    def __delete__(self, instance):
-        del self.name
-
-
 class HistSubprocess(object):
 
     def __init__(self, comm_arr):
-        self.name = NameUCASS(process_opts(comm_arr, '-n'))
+        self.name = process_opts(comm_arr, '-n')
         self.port = process_opts(comm_arr, '-p')
         ucass_list[self.name] = self.port
 
@@ -89,11 +74,15 @@ class HistSubprocess(object):
         self.settings.write(' '.join(comm_arr))
         self.settings.close()
 
-        self.process = subprocess.Popen(['konsole', '-e', '$SHELL', '-c', process_path])
+        self.process = subprocess.Popen(['konsole', '-e', '$SHELL', '-c', "exec " + process_path],
+                                        preexec_fn=os.setpgrp)
 
 
 def init_ucass(comm_arr):
     name = process_opts(comm_arr, '-n')
+    if not name:
+        print "Name not specified"
+        return
     ucass_store[name] = HistSubprocess(comm_arr)
 
 
@@ -104,18 +93,25 @@ def get_ucass_list():
         names.append(i)
     for i in ucass_list.values():
         ports.append(i)
-    print("\tDesignation:\tOn Port:")
+    print("\tName:\tPort:")
     for i in range(len(names)):
-        string = "\t".join([names[i], ports[i]])
+        string = "\t".join([str(names[i]), str(ports[i])])
         string = "\t" + string
         print(string)
 
 
 def delete_ucass(comm_arr):
     name = process_opts(comm_arr, '-n')
+    if not name:
+        print "Name not specified"
+        return
     ucass = ucass_store.get(name)
-    os.killpg(os.getpgid(ucass.process.pid), signal.SIGTERM)
-    print('Deleted UCASS With Designation: %d' % ucass.name)
+    try:
+        os.killpg(os.getpgid(ucass.process.pid), signal.SIGTERM)
+    except AttributeError:
+        print("UCASS with designation \"%s\" does not exist" % name)
+        return
+    print('Deleted UCASS With Designation: %s' % ucass.name)
     del ucass_list[name]
     del ucass_store[name]
     del ucass
@@ -153,6 +149,9 @@ def read_config(comm_arr):
     :param comm_arr: The command array entered, only uses -p
     """
     port = process_opts(comm_arr, '-p')
+    if not port:
+        print "Port not specified"
+        return
     used = port in ucass_list.values()
     if used:
         print("Serial port in use with name: %d" % port)
