@@ -6,9 +6,14 @@
       <w>konsole</w>
       <w>ltof</w>
       <w>mtof</w>
+      <w>preexec</w>
       <w>proc</w>
       <w>pyserial</w>
+      <w>setpgrp</w>
+      <w>ssss</w>
+      <w>struct</w>
       <w>ucass</w>
+      <w>usbiss</w>
     </words>
   </dictionary>
 </component>
