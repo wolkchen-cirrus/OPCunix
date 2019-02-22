@@ -29,5 +29,20 @@ The parent process in this software is a terminal program from which several dif
 * `[OPC-unix] >> exit`        - Exits the program
 * `[OPC-unix] >> ucass`       - The master for the commands associated with UCASS interfacing:
     1. init                   - Initialises a UCASS unit and starts recording histogram data in a subprocess (new window)
-        *   Options
-    2. del                    - Deletes a 
+        *   Options:
+            1.  '-n'          - User specified name for the unit, used to keep track
+            2.  '-p'          - Port to start the comminications on (i.e. /dev/tty*)
+            3.  '-r'          - Record to file or not (boolean 1 or 0), this will also print config vars to log
+    2. del                    - Deletes a UCASS unit and shuts down the subprocess
+        *   Options:
+            1.  '-n'          - Specify the name of the unit (set during init) you want to delete
+    3.  conf                  - Read config vars and print in parent process
+        *   Options:
+            1.  '-p'          - Specify the port of the unit you want to read (note this cannot be in use with init)
+  
+  
+  
+  
+  
+  
+  
