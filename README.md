@@ -1,2 +1,5 @@
 # OPCunix
-Python software to connect the UCASS with a linux OS or a raspberry pi. Designed for use with a data logger or a laptop.
+This software is designed to comminicate with the universal cloud and aerosol sounding system (UCASS) optical particle counter (OPC) designed at the University of Hertfordshire.
+---
+# Hardware #
+
