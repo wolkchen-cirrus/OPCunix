@@ -14,4 +14,10 @@ Then create a shortcut to where the 'main.py' file is located, or create a shell
 `#!/bin/bash`  
 `python ${PATH_TO_MODULE}/main.py`
 
+### Dependancies ###
+This module requires the following modules to be installed with pip, in addition to the default python modules:
+
+`pip install pyserial pyusbiss`
+
 ***
+## Commands ##
