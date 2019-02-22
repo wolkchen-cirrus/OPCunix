@@ -21,3 +21,11 @@ This module requires the following modules to be installed with pip, in addition
 
 ***
 ## Commands ##
+The parent process in this software is a terminal program from which several different commands can be launched. Options can be specified with the commands using '-' e.g. '-n', '-p', etc. A full list of commands is displayed here:
+
+* `[OPC-unix] >> list ports`  - Lists all the serial ports available
+* `[OPC-unix] >> list ucass`  - Lists all the initialised UCASS units
+* `[OPC-unix] >> clear`       - Clears the screen
+* `[OPC-unix] >> exit`        - Exits the program
+* `[OPC-unix] >> ucass`       - The master for the commands associated with UCASS interfacing:
+    1. init                   - Initialises a ucass unit and starts recording histogram data in 
