@@ -7,9 +7,13 @@ This software has the ability to handle multiple UCASS units simultaneously, all
 ## Installation ##
 Install this software using pip:
 
-`pip install OPCunix`
+`pip install UH-OPCunix-JGirdwood`
 
-Then create a shortcut to where the 'main.py' file is located, or create a shell script with the following:
+Use your prefered downloader (wget used here) to download the main.py file from github into a directory of your choice:
+
+`wget https://github.com/JGirdwood/OPCunix/raw/master/main.py`
+
+Then run the main file directly, create a shortcut to where the 'main.py' file is located, or create a shell script with the following:
 
 `#!/bin/bash`  
 `python ${PATH_TO_MODULE}/main.py`
