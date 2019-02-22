@@ -7,11 +7,11 @@ This software has the ability to handle multiple UCASS units simultaneously, all
 # Installation #
 Install this software using pip:
 
-  pip install OPCunix
+`pip install OPCunix`
 
 Then create a shortcut to where the 'main.py' file is located, or create a shell script with the following:
 
-  #!/bin/bash
-  python ${PATH_TO_MODULE}/main.py
+`#!/bin/bash  
+python ${PATH_TO_MODULE}/main.py`
 
 ***
