@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="UH-OPCunix-JGirdwood",
-    version="0.0.22",
+    version="0.1.0",
     author="Joseph Girdwood",
     author_email="j.girdwood@herts.ac.uk",
     description="A package to interface a UCASS with a linux computer via USB-ISS",
