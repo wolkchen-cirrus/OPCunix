@@ -28,4 +28,6 @@ The parent process in this software is a terminal program from which several dif
 * `[OPC-unix] >> clear`       - Clears the screen
 * `[OPC-unix] >> exit`        - Exits the program
 * `[OPC-unix] >> ucass`       - The master for the commands associated with UCASS interfacing:
-    1. init                   - Initialises a ucass unit and starts recording histogram data in 
+    1. init                   - Initialises a UCASS unit and starts recording histogram data in a subprocess (new window)
+        *   Options
+    2. del                    - Deletes a 
