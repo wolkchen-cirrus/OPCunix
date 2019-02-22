@@ -90,9 +90,17 @@ class HistSubprocess(object):
 
         # Opens the subprocess. Note the command (in square brackets) is different depending on the desktop client (i.e.
         # gnome, kde, etc.). The 'preexec_fn=os.setpgrp' is to assign the master process to a group, which allows the
-        # process to be deleted easily in the 'delete_ucass' function.
-        self.process = subprocess.Popen(['konsole', '-e', '$SHELL', '-c', "exec " + process_path],
-                                        preexec_fn=os.setpgrp)
+        # process to be deleted easily in the 'delete_ucass' function. The type of terminal being opened will depend on
+        # the desktop session, this is therefore obtained first using os. kde (plasma) and gnome are the most popular
+        # terminals, but many systems are alto compatible with xterm, this is in the else statement
+        self.desktop = os.environ.get('DESKTOP_SESSION')
+        if 'kde' in self.desktop:
+            self.process = subprocess.Popen(['konsole', '-e', '$SHELL', '-c', "exec " + process_path],
+                                            preexec_fn=os.setpgrp)
+        elif 'gnome' in self.desktop:
+            self.process = subprocess.Popen(['gnome-terminal', '-x', "exec " + process_path], preexec_fn=os.setpgrp)
+        else:
+            self.process = subprocess.Popen(['xterm', '-e', "exec " + process_path], preexec_fn=os.setpgrp)
 
 
 def init_ucass(comm_arr):
