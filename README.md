@@ -11,7 +11,7 @@ Install this software using pip:
 
 Then create a shortcut to where the 'main.py' file is located, or create a shell script with the following:
 
-`#!/bin/bash`  \n
+`#!/bin/bash`  
 `python ${PATH_TO_MODULE}/main.py`
 
 ***
