@@ -39,10 +39,35 @@ The parent process in this software is a terminal program from which several dif
     3.  conf                  - Read config vars and print in parent process
         *   Options:
             1.  '-p'          - Specify the port of the unit you want to read (note this cannot be in use with init)
-  
-  
-  
-  
-  
-  
-  
+
+### Examples ###
+*Example given, to initialise a UCASS unit to print histogram data to a screen:*
+
+`[OPC-unix] >> list ports`
+
+This will return a list of ports e.g.:
+
+`['/dev/ttyACM0']`
+
+Next, list the config vars so the bin bounderies are known or checked:
+
+`[OPC-unix] >> ucass config -p /dev/ttyACM0`
+
+This will return the tab delimited configuration variables (and headers) printed to the terminal window. Next, start recording histogram data:
+
+`[OPC-unix] >> ucass init -n unit-E -p /dev/ttyACM0 -r 1`
+
+This will initialise a UCASS with name 'unit-E' on port '/dev/ttyACM0' and start recording to a file in a directory specified by the 'default_path.txt' file in the module. By default this is ${HOME}/UCASS_LOG/ (the directory will be created automatically if it does not exist). This command will also start a new terminal window, which will be printing out data.
+
+
+
+
+
+
+
+
+
+
+
+
+
