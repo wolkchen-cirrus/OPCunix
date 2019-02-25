@@ -1,7 +1,7 @@
 import command_handler
 
 
-__version__ = '0.0.1'
+__version__ = '0.1.1'
 __title__ = 'OPCunix'
 __description__ = 'Communication with an OPC via SPI through an USB-ISS interface'
 __uri__ = 'https://github.com/JGirdwood/OPCunix'
