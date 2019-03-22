@@ -1,1 +1,1 @@
-ucass init -n SS -p /dev/ttyACM0
+ucass init -n S -p /dev/ttyACM0

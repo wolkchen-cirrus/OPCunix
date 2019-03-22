@@ -10,6 +10,7 @@
       <w>preexec</w>
       <w>proc</w>
       <w>pyserial</w>
+      <w>pyusbiss</w>
       <w>setpgrp</w>
       <w>ssss</w>
       <w>struct</w>
