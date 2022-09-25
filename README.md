@@ -55,7 +55,7 @@ This will return a list of ports e.g.:
 
 Next, list the config vars so the bin bounderies are known or checked:
 
-`[OPC-unix] >> ucass config -p /dev/ttyACM0`
+`[OPC-unix] >> ucass conf -p /dev/ttyACM0`
 
 This will return the tab delimited configuration variables (and headers) printed to the terminal window. Next, start recording histogram data:
 
