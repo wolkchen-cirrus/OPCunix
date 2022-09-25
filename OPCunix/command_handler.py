@@ -3,7 +3,7 @@ import subprocess
 import signal
 import serial
 import glob
-import serial_manager
+from OPCunix import serial_manager
 import sys
 
 
@@ -19,13 +19,12 @@ def process(comm):
     :return 1: If continue
     """
     comm_arr = comm.split()                 # Delimit the command by spaces for options
-
     if not comm_arr:                        # Make sure program does not crash if no command is specified
         return 1
 
     if comm_arr[0] == "list":               # Primary command 'list' is for listing various attributes
         if comm_arr[1] == "ports":          # Secondary command 'ports' will specify listing serial ports
-            print list_ports()
+            print(list_ports())
         elif comm_arr[1] == "ucass":        # Secondary command 'ucass' will specify listing instantiated ucass units
             get_ucass_list()
         return 1
@@ -46,11 +45,11 @@ def process(comm):
         elif comm_arr[1] == "conf":         # Tells a UCASS to list the config vars in the master process
             read_config(comm_arr)
         else:
-            print "Invalid Selection"
+            print("Invalid Selection")
         return 1
 
     else:
-        print "Invalid Selection"           # Makes sure the user is aware of typos
+        print("Invalid Selection")           # Makes sure the user is aware of typos
         return 1
 
 
@@ -93,7 +92,7 @@ class HistSubprocess(object):
         # process to be deleted easily in the 'delete_ucass' function. The type of terminal being opened will depend on
         # the desktop session, this is therefore obtained first using os. kde (plasma) and gnome are the most popular
         # terminals, but many systems are alto compatible with xterm, this is in the else statement
-        self.desktop = os.environ.get('DESKTOP_SESSION')
+        self.desktop = ['other']
         if 'kde' in self.desktop:
             self.process = subprocess.Popen(['konsole', '-e', '$SHELL', '-c', "exec " + process_path],
                                             preexec_fn=os.setpgrp)
@@ -112,10 +111,10 @@ def init_ucass(comm_arr):
     name = process_opts(comm_arr, '-n')             # User defined UCASS name
     port = process_opts(comm_arr, '-p')             # User defined UCASS port
     if not name:
-        print "Name not specified, use -n"
+        print("Name not specified, use -n")
         return                                      # Just return if no name (after user feedback)
     if not port:
-        print "Port not specified, use -p"
+        print("Port not specified, use -p")
         return                                      # Just return if no port (after user feedback)
     ucass_store[name] = HistSubprocess(comm_arr)    # Start the histogram subprocess and store in dictionary
 
@@ -146,7 +145,7 @@ def delete_ucass(comm_arr):
     """
     name = process_opts(comm_arr, '-n')                                 # Getting name from options
     if not name:                                                        # Checking if a name is specified
-        print "Name not specified"
+        print("Name not specified")
         return
     ucass = ucass_store.get(name)                                       # Getting the HistSubprocess object
     try:
@@ -202,7 +201,7 @@ def read_config(comm_arr):
     """
     port = process_opts(comm_arr, '-p')                     # Search command array for port
     if not port:
-        print "Port not specified"                          # User feedback if no port is specified
+        print("Port not specified")                          # User feedback if no port is specified
         return
     used = port in ucass_list.values()                      # Check if the port is currently in use (with subprocess)
     if used:

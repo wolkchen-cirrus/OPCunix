@@ -22,16 +22,8 @@ def get_base_name(command):
     :return base_name: the name to use as a base for the log file (added is "_XX.csv" where XX is a version number")
     """
     name_comm = process_opts(command, '-n')     # Get the name from the command
-    d_t = str(datetime.datetime.now())          # Get the date and time in a string
-    d_t = d_t.replace(' ', '_')                 # Format the date-time string
-
-    # Making the base_name string in the stated format. This will be UCASS_"name"_YYY-MM-DD_HH:MM:SS.SSSS, and _XX.csv
-    # will be added after this (where XX is a version number) to ensure the string does not get overwritten when the
-    # date and time cannot be obtained.
-    base_name = "UCASS_"
-    base_name += name_comm
-    base_name += "_"
-    base_name += d_t
+    d_t = datetime.datetime.now()          # Get the date and time
+    base_name = f"{d_t:%Y%m%d_%H%M%S}_UCASS_{name_comm}.csv"
     return base_name
 
 
@@ -42,27 +34,30 @@ def make_log(command):
     :return path_name: Absolute path name so the file can be opened, closed, and modified in the future
     """
     base_name = get_base_name(command)          # Make the base name, refer to function comments for format
-    path_file = open("default_path.txt", "r")   # Get the default file path from the settings file
-    path = path_file.read()
-    base_name += "_00.csv"                      # Add the extension to the base name
+    path = "/home/pi/UCASS/UCASS_A/UCASS_A_DATA/"      # Specify path for log files, should be changed for different UCASS
     directory = os.path.dirname(path)           # Check if the default directory already exists
     if not os.path.exists(directory):
         os.makedirs(directory)                  # Create directory if it doesn't exist
 
-    # This loop is designed to step the "_00.csv" by one if the filename already exists, to prevent files being
-    # overwritten when time and data data cannot be obtained.
-    path_name = path
-    for i in range(100):
-        path_name = path
-        name_l = list(base_name)
-        name_l[-1 - 5] = str(int(i / 10))
-        name_l[-1 - 4] = str(int(i % 10))
-        name_s = "".join(name_l)
-        path_name += '/'
-        path_name += name_s
-        if os.path.exists(path_name) is False:
-            break
+    path_name = f'{path}{base_name}'
     return path_name
+
+
+def every(delay, task):
+    """Function that handles calling a function "task" with some delay without time drift and takes care of exeptions."""
+    import time
+    import traceback
+    next_time = time.time() + delay
+    while True:
+        time.sleep(max(0, next_time - time.time()))
+        try:
+            task()
+        except Exception:
+            traceback.print_exc()
+            # in production code you might want to have this instead of course:
+            # logger.exception("Problem while executing repetitive task.")
+        # skip tasks if we are behind schedule:
+        next_time += (time.time() - next_time) // delay * delay + delay
 
 
 module_path = os.path.dirname(os.path.realpath(__file__))   # Get the absolute path of this module directory
@@ -80,9 +75,7 @@ record = process_opts(comm_arr, '-r')
 ucass = serial_manager.OPC(port)                            # Start an instance of the OPC class from the driver
 
 res = 0.5                                                   # Temporal resolution in seconds
-
-if record == 1:                                 # Check if data needs ot be logged
-
+if record == "1":                                 # Check if data needs ot be logged
     log_file_name = make_log(comm_arr)          # Get the filename
     ucass.read_config_vars()                    # Read the ucass configuration variables
     ucass.read_info_string()                    # Read the ucass info string
@@ -90,9 +83,7 @@ if record == 1:                                 # Check if data needs ot be logg
 
     # The following code is very similar to that in 'OPCunix.command_handler.read_config'. It is designed to write data
     # and headers to the log file, delimited with ','
-    date_time = str(datetime.datetime.now())
-    date_time = date_time.replace(' ', ',')
-    log.write(date_time)
+    log.write(f'{datetime.datetime.utcnow():%Y-%m-%d %H:%M:%S.%f}')
     log.write('\n')
     log.write(name)
     log.write(',')
@@ -108,39 +99,34 @@ if record == 1:                                 # Check if data needs ot be logg
     log.write(',')
     log.write(str(ucass.id))
     log.write('\n')
-    log.write("time,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b1ToF,b3ToF"
-              ",b7ToF,period,CSum,glitch,longToF,RejRat\n")
+    log.write(['UTC DateTime', 'Bin1', 'Bin2', 'Bin3', 'Bin4', 'Bin5', 'Bin6', 'Bin7', 'Bin8',
+               'Bin9', 'Bin10', 'Bin11', 'Bin12', 'Bin13', 'Bin14', 'Bin15', 'Bin16',
+               'Bin1MToF / us', 'Bin3MToF / us', 'Bin5MToF / us', 'Bin7MToF / us', 'Period',
+               'Checksum', 'reject_glitch', 'reject_longtof', 'reject_ratio'])
 
     # Flush and close the log once recording has finished
     log.flush()
     log.close()
 
-while True:
-
+def func():
     # This is the main loop of the subprocess, the number of counts in each particle bin between t and t-1 (known as
     # histogram data) are read through SPI (using the serial_manager purpose made driver), and either simple printed to
     # a screen or recorded and printed to a screen.
     ucass.read_histogram_data()
-    epoch_time = int(time.time())
-    data_array = [epoch_time, ucass.hist, ucass.mtof, ucass.period, ucass.checksum, ucass.reject_glitch,
+    date_time = datetime.datetime.utcnow()
+    data_array = [date_time, ucass.hist, ucass.mtof, ucass.period, ucass.checksum, ucass.reject_glitch,
                   ucass.reject_ltof, ucass.reject_ratio]
     data_array = ",".join(str(i) for i in data_array)
     data_array = data_array.replace('[', '')
     data_array = data_array.replace(']', '')
-    print data_array.replace(',', '\t')         # Data for screen is tab delimited for easy reading
+    print(data_array.replace(',', '\t'))         # Data for screen is tab delimited for easy reading
 
-    if record == 1:
-
-        log = open(name, "a+")
+    if record == "1":
+        log = open(log_file_name, "a+")
         log.write(data_array)
         log.write('\n')
         log.flush()
         log.close()
 
-    # The following code is to define the temporal resolution of measurements
-    dt = int(time.time()) - epoch_time          # Check how long the loop took to process
-
-    if dt < res:
-        time.sleep(res-dt)                      # Make sure the loop time is = 'res'
-    else:                                       # User feedback if the resolution is too high
-        print("Exceeded expected resolution, loop time is: %d" % dt)
+while True:
+	every(res, func)  # Calls function with consistent delay defined by res
