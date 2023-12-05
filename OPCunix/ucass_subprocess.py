@@ -98,7 +98,7 @@ if record == 1:                                 # Check if data needs ot be logg
     log.write(',')
     log.write(ucass.info_string)
     log.write('\n')
-    log.write("bb0,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,bb9,bb10,bb11,bb12,bb13,bb14,bb15,GSC,ID\n")
+    log.write("bb0,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,bb9,bb10,bb11,bb12,bb13,bb14,bb15,GSC,PVP,ID\n")
     bb_str = ",".join(str(i) for i in ucass.bbs)
     bb_str = bb_str.replace('[', '')
     bb_str = bb_str.replace(']', '')
@@ -108,7 +108,7 @@ if record == 1:                                 # Check if data needs ot be logg
     log.write(',')
     log.write(str(ucass.id))
     log.write('\n')
-    log.write("time,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b1ToF,b3ToF"
+    log.write("time,b0,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b1ToF,b3ToF,b5ToF"
               ",b7ToF,period,CSum,glitch,longToF,RejRat\n")
 
     # Flush and close the log once recording has finished
